@@ -1,0 +1,149 @@
+-- Khoi tao database
+CREATE DATABASE `tsumetaku89` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+-- Khoi tao bang Marks
+CREATE TABLE Marks (
+    Marks int ,
+    SubjectID int,
+    StudentID int 
+);
+-- Khoi tao bang Students 
+CREATE TABLE Students (
+    StudentID int (4) PRIMARY KEY ,
+    StudentName varchar(50),
+    Age int (4) ,
+    Email varchar(100)
+);
+-- Khoi tao bang Subjects
+CREATE TABLE Subjects(
+    SubjectID int (4) PRIMARY KEY,
+    SubjectName varchar(50)
+);
+-- Khoi tao bang Classes
+CREATE TABLE Classes (
+    ClassID int (4) PRIMARY KEY,
+    ClassName varchar(50)
+);
+-- Khoi tao bang ClassStudent
+CREATE TABLE ClassStudent (
+    StudentID int (4),
+    ClassID int (4)
+);
+
+-- Tao rang buoc khoa ngoai 
+ALTER TABLE marks
+ADD FOREIGN KEY (StudentID) REFERENCES students (StudentID)
+
+ALTER TABLE classstudent
+ADD FOREIGN KEY (StudentID) REFERENCES students (StudentID)
+
+ALTER TABLE classstudent
+ADD FOREIGN KEY (ClassID) REFERENCES classes (ClassID)
+
+ALTER TABLE marks
+ADD FOREIGN KEY (SubjectID) REFERENCES subjects (SubjectId);
+
+
+-- Chen du lieu vao bang 
+INSERT INTO students VALUES
+(1,"Tran Tu Anh",19,"vtatta@gmail.com"),
+(2,"Dang Huynh Phu",16,"PhuLove@gmail.com"),
+(3,"Vu Trung Kien",20,"kien2010"),
+(4,"Pham Duy Thai",19,"thai@yahoo.com"),
+(5,"Luc Van Thai",18,"lucthai@sport.com");
+
+-- Chen du lieu vao bang Classes 
+INSERT INTO classes VALUES
+(1,"C2110I1"),
+(2,"C2110H1");
+
+-- Chen du lieu vao bang ClassStudent
+INSERT INTO classstudent VALUES
+(1,1),
+(2,1),
+(3,2),
+(4,2),
+(5,2);
+
+-- Chen  du lieu vao bang  Subjects
+INSERT INTO subjects VALUES
+(1,"HTML"),
+(2,"MySQL"),
+(3,"C"),
+(4,"Angular");
+
+-- Chen du lieu vao bang Marks
+INSERT INTO marks VALUES
+(8,1,1),
+(4,2,1),
+(9,1,1),
+(7,1,3),
+(3,1,4),
+(5,2,5),
+(8,3,3),
+(1,3,5),
+(3,2,4);
+
+-- 4 THUC HIEN TRUY VAN
+-- 4.1 Hiển thị danh sách tất cả các học viên (Danh sách phải sắp xếp theo tên học viên)
+SELECT *
+FROM students 
+ORDER BY StudentName ASC
+
+-- 4.2 Hiển thị danh sách tất cả các môn học
+SELECT su.SubjectName
+FROM subjects su
+
+-- 4.3 Hiển thị danh sách những học viên nào có địa chỉ email chính xác
+SELECT *
+FROM students WHERE Email LIKE '%@gmail.com'
+
+-- 4.4 Hiển thị danh sách những học viên có họ là Nguyen
+SELECT *
+FROM students WHERE StudentName LIKE 'Nguyen%'
+
+-- 4.5 Hiển thị danh sách ác bạn học viên của lớp C0705L
+SELECT st.StudentName,  cl.ClassName
+FROM students st INNER JOIN classstudent cs ON cs.StudentID = st.StudentID INNER JOIN classes cl ON cl.ClassID = cs.ClassID
+WHERE cl.ClassName = "C0706L"  
+
+-- 4.6 Hiển thị danh sách và điểm học viên ứng với môn học
+SELECT st.StudentName , su.SubjectName , m.Marks
+FROM students st INNER JOIN marks m ON m.StudentID=st.StudentID INNER JOIN subjects su ON su.SubjectID=m.SubjectID
+
+-- 4.10 Hiển thị môn học nào được thi nhiều nhất
+SELECT su.SubjectName , COUNT(ma.SubjectID)
+FROM marks ma INNER JOIN subjects su ON su.SubjectID=ma.SubjectID
+GROUP BY su.SubjectName
+ORDER BY  COUNT(ma.SubjectID) DESC 
+LIMIT 1;
+
+-- 4.11 Hiển thị môn học nào có học sinh thi được điểm cao nhất
+
+SELECT su.SubjectName , MAX(ma.Marks) 
+FROM marks ma INNER JOIN subjects su ON su.SubjectID=ma.SubjectID
+
+-- 4.12 Hiển thị môn học nào có nhiều điểm dưới trung bình nhất (<5)
+SELECT su.SubjectName , COUNT(ma.Marks)
+FROM marks ma INNER JOIN subjects su ON su.SubjectID=ma.SubjectID WHERE ma.Marks<5
+GROUP BY su.SubjectName
+ORDER BY COUNT(ma.Marks) DESC
+LIMIT 1
+
+
+-- 5 tao rang buoc
+-- 5.1 Tạo Check Constraint de kiem tra do tuoi nhap vao trong bang Student yeu cau Age >15 va Age < 50
+ALTER TABLE students 
+ADD CONSTRAINT CHECK(Age>15 AND Age<50)
+-- 5.2 Xóa học viên có StudentID là 1
+DELETE FROM students WHERE StudentID = 1
+
+-- 5.3 Trong bảng Student them một column Status có kiểu dữ liệu là Bit và có giá trị Default là 1
+ALTER TABLE students
+ADD Status bit DEFAULT 1
+-- 5.4 Cập nhật giá trị Status trong bảng Student là 0 tại StudentID = 3
+UPDATE students
+SET Status = 0
+WHERE StudentID =3
+
+
+
